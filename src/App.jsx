@@ -1,12 +1,9 @@
+import { Button } from "./components/ui/button";
 
-
-function App() {
-
+export default function App() {
   return (
-    <>
-    <h1>App.jsx</h1>
-    </>
+    <div className="p-6">
+      <Button>Shadcn work</Button>
+    </div>
   )
 }
-
-export default App
