@@ -1,9 +1,22 @@
-import { Button } from "./components/ui/button";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import AppRoutes from "./routes/AppRoutes";
 
-export default function App() {
+function App() {
   return (
-    <div className="p-6">
-      <Button>Shadcn work</Button>
-    </div>
-  )
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
+      <AppRoutes />
+    </>
+  );
 }
+
+export default App;
