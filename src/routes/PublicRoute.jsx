@@ -3,11 +3,11 @@ import React from 'react'
 import { Navigate } from 'react-router-dom';
 
 export default function PublicRoute({children}) {
-    const isAuthtenicated = useAppSelector(
-        (state) => state.auth.isAuthtenicated
+    const isAuthenticated = useAppSelector(
+        (state) => state.auth.isAuthenticated
     );
 
-    if(isAuthtenicated){
+    if(isAuthenticated){
         return <Navigate to="/dashboard" replace />
     }
 
