@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toggleTheme } from "@/features/ui/uiSlice";
+import { editTask } from "../features/tasks/taskSlice";
+import { clearCompleted } from "../features/tasks/taskSlice";
+import TaskStats from "@/features/components/TaskStats";
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
@@ -19,6 +22,12 @@ const Dashboard = () => {
   const theme = useAppSelector((state) => state.ui.theme);
 
   const [newTask, setNewTask] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
+
+  const task = useAppSelector((state) => state.tasks);
+
+  const [priority, setPriority] = useState("medium");
 
   const handleLogout = () => {
     dispatch(logout());
@@ -27,8 +36,17 @@ const Dashboard = () => {
 
   const handleAddTask = () => {
     if (!newTask.trim()) return;
-    dispatch(addTask(newTask));
+
+    dispatch(
+      addTask({
+        title: newTask,
+        priority,
+        dueDate: null,
+      }),
+    );
+
     setNewTask("");
+    setPriority("medium");
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -36,6 +54,25 @@ const Dashboard = () => {
     if (filter === "completed") return task.completed;
     return true;
   });
+
+  const handleEditStart = (task) => {
+    setEditingId(task.id);
+    setEditText(task.title);
+  };
+
+  const handleEditSave = (task) => {
+    if (!editText.trim()) return;
+
+    dispatch(editTask({ id, title: editText }));
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const handleEditCancel = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
 
   return (
     <div className="min-h-screen bg-muted/40 p-6">
@@ -75,6 +112,9 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
+        {/* Statistics */}
+        <TaskStats/>
+
         {/* Tasks Section */}
         <Card>
           <CardHeader>
@@ -88,7 +128,19 @@ const Dashboard = () => {
                 placeholder="Enter task..."
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
+                className="flex-1"
               />
+
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className="border rounded-md px-2"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+
               <Button onClick={handleAddTask}>Add</Button>
             </div>
 
@@ -118,6 +170,16 @@ const Dashboard = () => {
               </Button>
             </div>
 
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => dispatch(clearCompleted())}
+              >
+                Clear Completed
+              </Button>
+            </div>
+
             {/* Task List */}
             <div className="space-y-2">
               {tasks.length === 0 && (
@@ -129,22 +191,71 @@ const Dashboard = () => {
                   key={task.id}
                   className="flex items-center justify-between border rounded-lg px-3 py-2"
                 >
-                  <span
-                    className={`cursor-pointer ${
-                      task.completed ? "line-through text-muted-foreground" : ""
-                    }`}
-                    onClick={() => dispatch(toggleTask(task.id))}
-                  >
-                    {task.title}
-                  </span>
+                  {editingId === task.id ? (
+                    <div className="flex gap-2 w-full">
+                      <Input
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button size="sm" onClick={() => handleEditSave(task.id)}>
+                        Save
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleEditCancel}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`cursor-pointer ${
+                            task.completed
+                              ? "line-through text-muted-foreground"
+                              : ""
+                          }`}
+                          onClick={() => dispatch(toggleTask(task.id))}
+                        >
+                          {task.title}
+                        </span>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => dispatch(deleteTask(task.id))}
-                  >
-                    Delete
-                  </Button>
+                        {/* Priority Badge */}
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${
+                            task.priority === "high"
+                              ? "bg-red-100 text-red-600"
+                              : task.priority === "medium"
+                                ? "bg-yellow-100 text-yellow-600"
+                                : "bg-gray-200 text-gray-600"
+                          }`}
+                        >
+                          {task.priority}
+                        </span>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditStart(task)}
+                        >
+                          Edit
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => dispatch(deleteTask(task.id))}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
