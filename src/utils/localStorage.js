@@ -17,7 +17,6 @@ export const saveState = (state) => {
     try {
         const serializedState = JSON.stringify(state)
         localStorage.setItem("app_state", serializedState)
-        toast.success("Data saved Successfully!")
 
     } catch (err) {
         console.error("could not save state", err);
