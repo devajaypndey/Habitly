@@ -23,7 +23,7 @@ const TaskList = () => {
     <div className="space-y-2">
       {tasks.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-center space-y-4">
-          <ClipboardList className="w-16 h-16 text-green-500 opacity-80" />
+          <ClipboardList className="w-16 h-16 text-green-700 opacity-80" />
 
           <h2 className="text-xl font-semibold">No tasks yet</h2>
 
