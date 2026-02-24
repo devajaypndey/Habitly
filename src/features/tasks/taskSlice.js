@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 const initialState = {
   tasks: [],
   filter: "all",
-  sortBy: "newest",
   searchTerm: "",
 };
 
@@ -13,65 +12,58 @@ const taskSlice = createSlice({
   initialState,
   reducers: {
     addTask: (state, action) => {
-      const { title, priority, dueDate } = action.payload;
+      const { title, priority } = action.payload;
 
       state.tasks.push({
         id: Date.now(),
         title,
-        completed: false,
         priority: priority || "medium",
         createdAt: new Date().toISOString(),
-        completedAt: null,
-        dueDate: dueDate || null,
+        activity: [], 
       });
 
-      toast.success("Task added successfully!");
+      toast.success("Task created!");
     },
 
+    // Log activity for today
     toggleTask: (state, action) => {
       const task = state.tasks.find(
-        (task) => task.id === action.payload
+        (t) => t.id === action.payload
       );
 
-      if (task) {
-        task.completed = !task.completed;
-        task.completedAt = task.completed
-          ? new Date().toISOString()
-          : null;
+      if (!task) return;
+
+      const today = new Date()
+        .toISOString()
+        .split("T")[0];
+
+      const alreadyLogged = task.activity.includes(today);
+
+      if (alreadyLogged) {
+        // remove today's activity (undo)
+        task.activity = task.activity.filter(
+          (date) => date !== today
+        );
+      } else {
+        task.activity.push(today);
       }
     },
 
     deleteTask: (state, action) => {
       state.tasks = state.tasks.filter(
-        (task) => task.id !== action.payload
+        (t) => t.id !== action.payload
       );
-
-      toast.success("Task deleted successfully!");
+      toast.success("Task deleted!");
     },
 
     editTask: (state, action) => {
       const { id, title } = action.payload;
-
       const task = state.tasks.find((t) => t.id === id);
-      if (task) {
-        task.title = title;
-        toast.success("Task updated!");
-      }
-    },
-
-    clearCompleted: (state) => {
-      state.tasks = state.tasks.filter(
-        (task) => !task.completed
-      );
-      toast.success("Completed tasks cleared!");
+      if (task) task.title = title;
     },
 
     setFilter: (state, action) => {
       state.filter = action.payload;
-    },
-
-    setSortBy: (state, action) => {
-      state.sortBy = action.payload;
     },
 
     setSearchTerm: (state, action) => {
@@ -85,9 +77,7 @@ export const {
   toggleTask,
   deleteTask,
   editTask,
-  clearCompleted,
   setFilter,
-  setSortBy,
   setSearchTerm,
 } = taskSlice.actions;
 

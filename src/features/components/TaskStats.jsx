@@ -66,7 +66,7 @@ const TaskStats = () => {
               {completionRate}%
             </p>
             <p className="text-sm text-muted-foreground">
-              Today’s Completion
+              Completion Rate
             </p>
           </div>
         </div>
