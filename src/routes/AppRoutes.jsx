@@ -4,6 +4,7 @@ import Dashboard from "../pages/Dashboard";
 import Home from "../pages/Home";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
+import TaskHeatmapPage from "@/pages/TaskHeatmapPage";
 
 const AppRoutes = () => {
   return (
@@ -21,6 +22,15 @@ const AppRoutes = () => {
         />
 
         <Route
+          path="/task/:id"
+          element={
+            <ProtectedRoute>
+              <TaskHeatmapPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
@@ -28,7 +38,6 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-
       </Routes>
     </BrowserRouter>
   );
