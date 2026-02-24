@@ -3,9 +3,11 @@ import { useAppSelector } from "@/app/hooks";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarDays } from "lucide-react";
 import { ArrowBigLeftDash } from "lucide-react";
 import { ArrowBigRightDash } from "lucide-react";
+import { useAppDispatch } from "@/app/hooks";
+import { editTask, deleteTask } from "@/features/tasks/taskSlice";
+import { Input } from "@/components/ui/input";
 
 const TaskHeatmapPage = () => {
   const { id } = useParams();
@@ -110,7 +112,6 @@ const TaskHeatmapPage = () => {
   const goToNextMonth = () => {
     const nextMonth = new Date(year, month + 1, 1);
 
-    // Do not allow navigating to future month
     if (
       nextMonth.getFullYear() > today.getFullYear() ||
       (nextMonth.getFullYear() === today.getFullYear() &&
@@ -122,11 +123,35 @@ const TaskHeatmapPage = () => {
     setCurrentMonth(nextMonth);
   };
 
+  const dispatch = useAppDispatch();
+
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(task.title);
+
+  const handleSave = () => {
+    if (!editText.trim()) return;
+    dispatch(editTask({ id: task.id, title: editText }));
+    setEditing(false);
+  };
+
+  const handleDelete = () => {
+    dispatch(deleteTask(task.id));
+    navigate("/dashboard");
+  };
+
+  const isFutureDate = (date) => {
+    return date > todayISO;
+  };
+
+  const isToday = (date) => {
+    return date === todayISO;
+  };
+
   return (
     <div className="min-h-screen bg-muted/40 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-semibold">{task.title} — Activity</h1>
+          <h1 className="text-3xl font-semibold">{task.title}</h1>
 
           <Button variant="outline" onClick={() => navigate(-1)}>
             Back
@@ -155,68 +180,127 @@ const TaskHeatmapPage = () => {
 
           <CardContent>
             {/* Weekday labels */}
-            {task.activity.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-                <CalendarDays className="w-20 h-20 text-green-500 opacity-80" />
+            <div className="grid grid-cols-7 gap-2 mb-2 text-sm text-center text-muted-foreground">
+              <div>Sun</div>
+              <div>Mon</div>
+              <div>Tue</div>
+              <div>Wed</div>
+              <div>Thu</div>
+              <div>Fri</div>
+              <div>Sat</div>
+            </div>
 
-                <h2 className="text-xl font-semibold">
-                  Your journey starts today
-                </h2>
+            {/* Calendar grid */}
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
+              {calendarDays.map((date, index) => {
+                if (!date) {
+                  return <div key={index} />;
+                }
 
-                <p className="text-muted-foreground max-w-sm">
-                  Complete this task once and your calendar will begin filling
-                  with progress.
-                </p>
+                const future = isFutureDate(date);
+                const today = isToday(date);
+
+                const count = task.activity.filter((d) => d === date).length;
+
+                let bg = "bg-gray-200 dark:bg-gray-700";
+                let textColor = "text-gray-700 dark:text-gray-200";
+
+                if (count === 1) {
+                  bg = "bg-green-300";
+                  textColor = "text-green-900";
+                }
+                if (count === 2) {
+                  bg = "bg-green-500";
+                  textColor = "text-white";
+                }
+                if (count >= 3) {
+                  bg = "bg-green-700";
+                  textColor = "text-white";
+                }
+
+                return (
+                  <div
+                    key={index}
+                    className={`
+          aspect-square flex items-center justify-center
+          rounded-md text-xs sm:text-sm font-medium
+          transition-all
+          ${bg}
+          ${textColor}
+          ${future ? "opacity-40 cursor-not-allowed" : ""}
+          ${today ? "ring-2 ring-green-500 ring-offset-1" : ""}
+        `}
+                  >
+                    {new Date(date).getDate()}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Show encouragement only if no activity */}
+            {task.activity.length === 0 && (
+              <div className="mt-6 text-center text-muted-foreground">
+                Start today to begin your streak.
               </div>
-            ) : (
-              <>
-                {/* Weekday labels */}
-                <div className="grid grid-cols-7 gap-2 mb-2 text-sm text-center text-muted-foreground">
-                  <div>Sun</div>
-                  <div>Mon</div>
-                  <div>Tue</div>
-                  <div>Wed</div>
-                  <div>Thu</div>
-                  <div>Fri</div>
-                  <div>Sat</div>
-                </div>
-
-                {/* Calendar grid */}
-                <div className="grid grid-cols-7 gap-2">
-                  {calendarDays.map((date, index) => (
-                    <div
-                      key={index}
-                      className={`h-16 flex flex-col items-center justify-center rounded-md text-sm ${
-                        date ? getColor(date) : ""
-                      }`}
-                    >
-                      {date && new Date(date).getDate()}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Streak Section */}
-                <div className="mt-6 grid grid-cols-2 gap-4 text-center">
-                  <div className="p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">
-                      {currentStreak}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Current Streak
-                    </p>
-                  </div>
-
-                  <div className="p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-green-700">
-                      {longestStreak}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Longest Streak
-                    </p>
-                  </div>
-                </div>
-              </>
             )}
+
+            {/*Streak Section*/}
+            {task.activity.length > 0 && (
+              <div className="mt-6 grid grid-cols-2 gap-4 text-center">
+                <div className="p-4 border rounded-lg">
+                  <p className="text-2xl font-bold text-green-600">
+                    {currentStreak}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Current Streak
+                  </p>
+                </div>
+
+                <div className="p-4 border rounded-lg">
+                  <p className="text-2xl font-bold text-green-700">
+                    {longestStreak}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Longest Streak
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Task Management Section */}
+            <div className="mt-8 border-t pt-6 space-y-4">
+              <h2 className="text-lg font-semibold">Task Settings</h2>
+
+              {editing ? (
+                <div className="flex gap-2">
+                  <Input
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button size="sm" onClick={handleSave}>
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditing(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setEditing(true)}>
+                    Edit Task
+                  </Button>
+
+                  <Button variant="destructive" onClick={handleDelete}>
+                    Delete Task
+                  </Button>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
