@@ -3,6 +3,9 @@ import { useAppSelector } from "@/app/hooks";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { CalendarDays } from "lucide-react";
+import { ArrowBigLeftDash } from "lucide-react";
+import { ArrowBigRightDash } from "lucide-react";
 
 const TaskHeatmapPage = () => {
   const { id } = useParams();
@@ -134,7 +137,7 @@ const TaskHeatmapPage = () => {
           <CardHeader>
             <div className="flex justify-between items-center">
               <Button variant="outline" onClick={goToPreviousMonth}>
-                ←
+                <ArrowBigLeftDash />
               </Button>
 
               <CardTitle>
@@ -145,53 +148,75 @@ const TaskHeatmapPage = () => {
               </CardTitle>
 
               <Button variant="outline" onClick={goToNextMonth}>
-                →
+                <ArrowBigRightDash />
               </Button>
             </div>
           </CardHeader>
 
           <CardContent>
             {/* Weekday labels */}
-            <div className="grid grid-cols-7 gap-2 mb-2 text-sm text-center text-muted-foreground">
-              <div>Sun</div>
-              <div>Mon</div>
-              <div>Tue</div>
-              <div>Wed</div>
-              <div>Thu</div>
-              <div>Fri</div>
-              <div>Sat</div>
-            </div>
+            {task.activity.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                <CalendarDays className="w-20 h-20 text-green-500 opacity-80" />
 
-            {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-2">
-              {calendarDays.map((date, index) => (
-                <div
-                  key={index}
-                  className={`h-16 flex flex-col items-center justify-center rounded-md text-sm ${
-                    date ? getColor(date) : ""
-                  }`}
-                >
-                  {date && new Date(date).getDate()}
+                <h2 className="text-xl font-semibold">
+                  Your journey starts today
+                </h2>
+
+                <p className="text-muted-foreground max-w-sm">
+                  Complete this task once and your calendar will begin filling
+                  with progress.
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Weekday labels */}
+                <div className="grid grid-cols-7 gap-2 mb-2 text-sm text-center text-muted-foreground">
+                  <div>Sun</div>
+                  <div>Mon</div>
+                  <div>Tue</div>
+                  <div>Wed</div>
+                  <div>Thu</div>
+                  <div>Fri</div>
+                  <div>Sat</div>
                 </div>
-              ))}
-            </div>
 
-            {/* Streak Section */}
-            <div className="mt-6 grid grid-cols-2 gap-4 text-center">
-              <div className="p-4 border rounded-lg">
-                <p className="text-2xl font-bold text-green-600">
-                  {currentStreak}
-                </p>
-                <p className="text-sm text-muted-foreground">Current Streak</p>
-              </div>
+                {/* Calendar grid */}
+                <div className="grid grid-cols-7 gap-2">
+                  {calendarDays.map((date, index) => (
+                    <div
+                      key={index}
+                      className={`h-16 flex flex-col items-center justify-center rounded-md text-sm ${
+                        date ? getColor(date) : ""
+                      }`}
+                    >
+                      {date && new Date(date).getDate()}
+                    </div>
+                  ))}
+                </div>
 
-              <div className="p-4 border rounded-lg">
-                <p className="text-2xl font-bold text-green-700">
-                  {longestStreak}
-                </p>
-                <p className="text-sm text-muted-foreground">Longest Streak</p>
-              </div>
-            </div>
+                {/* Streak Section */}
+                <div className="mt-6 grid grid-cols-2 gap-4 text-center">
+                  <div className="p-4 border rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">
+                      {currentStreak}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Current Streak
+                    </p>
+                  </div>
+
+                  <div className="p-4 border rounded-lg">
+                    <p className="text-2xl font-bold text-green-700">
+                      {longestStreak}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Longest Streak
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
