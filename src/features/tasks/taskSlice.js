@@ -21,8 +21,6 @@ const taskSlice = createSlice({
         createdAt: new Date().toISOString(),
         activity: [], 
       });
-
-      toast.success("Task created!");
     },
 
     // Log activity for today
@@ -53,7 +51,6 @@ const taskSlice = createSlice({
       state.tasks = state.tasks.filter(
         (t) => t.id !== action.payload
       );
-      toast.success("Task deleted!");
     },
 
     editTask: (state, action) => {
