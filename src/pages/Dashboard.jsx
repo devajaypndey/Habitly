@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +14,7 @@ const Dashboard = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { user } = useAppSelector((state) => state.auth);
+  // const { user } = useAppSelector((state) => state.auth);
   const theme = useAppSelector((state) => state.ui.theme);
 
   const task = useAppSelector((state) => state.tasks);
@@ -31,7 +30,7 @@ const Dashboard = () => {
         
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-semibold">Dashboard</h1>
+          <h1 className="text-3xl font-semibold">Habitly.</h1>
 
           <div className="flex items-center gap-3">
             <Button
@@ -42,14 +41,14 @@ const Dashboard = () => {
               {theme === "light" ? "Dark" : "Light"}
             </Button>
 
-            <Button variant="destructive" onClick={handleLogout}>
+            {/* <Button variant="destructive" onClick={handleLogout}>
               Logout
-            </Button>
+            </Button> */}
           </div>
         </div>
 
         {/* User Info */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>Welcome</CardTitle>
           </CardHeader>
@@ -62,7 +61,7 @@ const Dashboard = () => {
               <span className="font-medium">Email:</span> {user?.email}
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Statistics */}
         <TaskStats/>
@@ -70,13 +69,15 @@ const Dashboard = () => {
         {/* Tasks Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Tasks</CardTitle>
+            <CardTitle>Habits</CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-4">
+
             {/* Add Task */}
             <TaskInput />
 
+            {/* Filters */}
             <TaskFilters />
 
             {/* Task List */}
