@@ -1,43 +1,22 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
-import Home from "../pages/Home";
-import ProtectedRoute from "./ProtectedRoute";
-import PublicRoute from "./PublicRoute";
 import TaskHeatmapPage from "@/pages/TaskHeatmapPage";
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
 
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        <Route
-          path="/task/:id"
-          element={
-            <ProtectedRoute>
-              <TaskHeatmapPage />
-            </ProtectedRoute>
-          }
-        />
+        {/* Login for future */}
+        <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route path="/task/:id" element={<TaskHeatmapPage />} />
+
       </Routes>
     </BrowserRouter>
   );
