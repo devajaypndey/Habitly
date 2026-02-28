@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CheckCircle2, CircleDashed, BarChart3 } from "lucide-react";
 
 const TaskStats = () => {
   const tasks = useAppSelector(
@@ -27,49 +28,72 @@ const TaskStats = () => {
       : Math.round((completedToday / totalTasks) * 100);
 
   return (
-    <Card>
+    <Card className="rounded-xl">
       <CardHeader>
-        <CardTitle>Statistics</CardTitle>
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <BarChart3 className="w-5 h-5 text-muted-foreground" />
+          Statistics
+        </CardTitle>
       </CardHeader>
 
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="p-3 border rounded-lg">
-            <p className="text-lg font-semibold">
+      <CardContent className="space-y-6">
+
+        {/* HERO COMPLETION */}
+        <div className="text-center">
+          <p className="text-4xl font-bold tracking-tight">
+            {completionRate}%
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Today’s Completion
+          </p>
+        </div>
+
+        {/* GRID STATS */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+          <div className="p-4 rounded-lg border bg-muted/40 transition hover:bg-muted/60">
+            <p className="text-2xl font-semibold">
               {totalTasks}
             </p>
-            <p className="text-sm text-muted-foreground">
-              Total Tasks
+            <p className="text-xs text-muted-foreground mt-1">
+              Total Habits
             </p>
           </div>
 
-          <div className="p-3 border rounded-lg">
-            <p className="text-lg font-semibold">
-              {activeToday}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Not Done Today
-            </p>
-          </div>
-
-          <div className="p-3 border rounded-lg">
-            <p className="text-lg font-semibold">
-              {completedToday}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Done Today
+          <div className="p-4 rounded-lg border bg-muted/40 transition hover:bg-muted/60">
+            <div className="flex items-center gap-2 text-green-500">
+              <CheckCircle2 className="w-4 h-4" />
+              <p className="text-2xl font-semibold">
+                {completedToday}
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Completed Today
             </p>
           </div>
 
-          <div className="p-3 border rounded-lg">
-            <p className="text-lg font-semibold">
-              {completionRate}%
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Completion Rate
+          <div className="p-4 rounded-lg border bg-muted/40 transition hover:bg-muted/60">
+            <div className="flex items-center gap-2 text-yellow-500">
+              <CircleDashed className="w-4 h-4" />
+              <p className="text-2xl font-semibold">
+                {activeToday}
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Remaining
             </p>
           </div>
         </div>
+
+        {/* EMPTY STATE ILLUSTRATION */}
+        {totalTasks === 0 && (
+          <div className="flex flex-col items-center justify-center pt-6 text-center space-y-3">
+            <BarChart3 className="w-16 h-16 text-muted-foreground opacity-40" />
+            <p className="text-sm text-muted-foreground">
+              Add your first habit to see statistics.
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
