@@ -3,6 +3,7 @@ import "react-toastify/dist/ReactToastify.css";
 import AppRoutes from "./routes/AppRoutes";
 import { useAppSelector } from "./app/hooks";
 import { useEffect } from "react";
+import PWAUpdateToast from "./components/PWAUpdateToast";
 
 function App() {
 
@@ -26,6 +27,7 @@ function App() {
         theme="colored"
       />
       <AppRoutes />
+      <PWAUpdateToast />
     </>
   );
 }
