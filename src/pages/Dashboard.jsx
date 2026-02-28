@@ -30,7 +30,7 @@ const Dashboard = () => {
         
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-semibold">Habitly.</h1>
+          <h1 className="text-4xl font-semibold text-[#5A7ACD] brand-heading ">Habitly.</h1>
 
           <div className="flex items-center gap-3">
             <Button
