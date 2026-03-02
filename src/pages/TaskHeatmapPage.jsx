@@ -48,12 +48,19 @@ const TaskHeatmapPage = () => {
   }
 
   longestStreak = Math.max(longestStreak, tempStreak);
+  
+  function formatLocalDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
 
   // Current streak calculation
-  const todayISO = new Date().toISOString().split("T")[0];
+  const todayISO = formatLocalDate(new Date());
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayISO = yesterday.toISOString().split("T")[0];
+  const yesterdayISO = formatLocalDate(yesterday);
 
   if (uniqueDates.includes(todayISO)) {
     currentStreak = 1;
@@ -61,7 +68,7 @@ const TaskHeatmapPage = () => {
     let checkDate = new Date();
     checkDate.setDate(checkDate.getDate() - 1);
 
-    while (uniqueDates.includes(checkDate.toISOString().split("T")[0])) {
+    while (uniqueDates.includes(formatLocalDate(checkDate))) {
       currentStreak++;
       checkDate.setDate(checkDate.getDate() - 1);
     }
@@ -90,7 +97,7 @@ const TaskHeatmapPage = () => {
   // Real days
   for (let day = 1; day <= totalDays; day++) {
     const dateObj = new Date(year, month, day);
-    const isoDate = dateObj.toISOString().split("T")[0];
+    const isoDate = formatLocalDate(dateObj);
     calendarDays.push(isoDate);
   }
 
