@@ -13,7 +13,8 @@ const store = configureStore({
 store.subscribe(() =>{
     saveState({
         auth: store.getState().auth,
-        tasks: store.getState().tasks
+        tasks: store.getState().tasks,
+        ui: store.getState().ui
     });
 })
 

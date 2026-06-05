@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
 import { addTask } from "@/features/tasks/taskSlice";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { CircleFadingPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 const TaskInput = () => {
   const dispatch = useAppDispatch();
 
   const [newTask, setNewTask] = useState("");
   const [priority, setPriority] = useState("positive");
+  const [isFocused, setIsFocused] = useState(false);
 
   const handleAddTask = () => {
     if (!newTask.trim()) return;
@@ -27,61 +25,87 @@ const TaskInput = () => {
     setPriority("positive");
   };
 
-  const priorityStyles = {
-    positive:
-      "border-yellow-500 text-yellow-600 bg-yellow-500/10 dark:bg-yellow-900/20",
-    neutral:
-      "border-gray-400 text-blue-400 bg-blue-500/10 dark:bg-gray-400/10",
-    negative:
-      "border-red-500 text-red-600 bg-red-500/10 dark:bg-red-600/10",
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleAddTask();
+    }
   };
 
-  return (
-    <Card className="p-6 space-y-5 shadow-md">
+  const priorityOptions = [
+    {
+      value: "positive",
+      label: "Positive",
+      className: "notion-tag-green",
+    },
+    {
+      value: "neutral",
+      label: "Neutral",
+      className: "notion-tag-blue",
+    },
+    {
+      value: "negative",
+      label: "Negative",
+      className: "notion-tag-red",
+    },
+  ];
 
-      <div>
-        <Input
-          placeholder="What habit are you building?"
+  return (
+    <div
+      className={`rounded-md border transition-all duration-150 ${
+        isFocused
+          ? "border-(--notion-blue) shadow-[0_0_0_1px_var(--notion-blue)]"
+          : "border-border"
+      }`}
+    >
+      {/* Input row */}
+      <div className="flex items-center gap-2 px-3 py-2">
+        <Plus className="w-4 h-4 text-muted-foreground shrink-0" />
+        <input
+          placeholder="Type a habit name..."
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
-          className="h-12 text-base"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          onKeyDown={handleKeyDown}
+          className="notion-inline-input flex-1 p-0! bg-transparent! text-sm"
         />
       </div>
 
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-muted-foreground">
-          Priority
-        </p>
+      {/* Bottom toolbar (shows when focused or has text) */}
+      {(isFocused || newTask.trim()) && (
+        <div className="flex items-center justify-between px-3 py-2 border-t border-border notion-animate-in">
+          {/* Priority tags */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground mr-1">Type:</span>
+            {priorityOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setPriority(opt.value)}
+                onMouseDown={(e) => e.preventDefault()} // prevent blur
+                className={`notion-tag cursor-pointer transition-all ${
+                  priority === opt.value
+                    ? opt.className
+                    : "bg-secondary text-muted-foreground hover:bg-accent"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
 
-        <div className="flex flex-wrap gap-3">
-          {["positive", "neutral", "negative"].map((type) => (
-            <button
-              key={type}
-              onClick={() => setPriority(type)}
-              className={`px-4 py-2 rounded-full border text-sm font-medium transition-all
-                ${
-                  priority === type
-                    ? priorityStyles[type]
-                    : "border-muted hover:bg-muted/50"
-                }
-              `}
-            >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </button>
-          ))}
+          {/* Add button */}
+          <button
+            onClick={handleAddTask}
+            onMouseDown={(e) => e.preventDefault()}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium
+                       bg-(--notion-blue) text-white hover:opacity-90 transition-opacity"
+          >
+            <Plus className="w-3 h-3" />
+            Add
+          </button>
         </div>
-      </div>
-
-      <div className="flex justify-end">
-        <Button
-          onClick={handleAddTask}
-          className="px-6 h-11 text-base flex items-center gap-2"
-        >
-          <CircleFadingPlus className="w-4 h-4" />
-          Add Habit
-        </Button>
-      </div>
-    </Card>
+      )}
+    </div>
   );
 };
 

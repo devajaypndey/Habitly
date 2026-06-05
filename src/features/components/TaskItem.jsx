@@ -1,8 +1,7 @@
 import { useAppDispatch } from "@/app/hooks";
 import { toggleTask } from "@/features/tasks/taskSlice";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { CircleCheckBig, Flame } from "lucide-react";
+import { Flame, Check, GripVertical, ArrowUpRight } from "lucide-react";
 
 const TaskItem = ({ task }) => {
   const dispatch = useAppDispatch();
@@ -11,7 +10,7 @@ const TaskItem = ({ task }) => {
   const today = new Date().toISOString().split("T")[0];
   const doneToday = task.activity.includes(today);
 
-  // 🔥 Mini Streak Calculation
+  // Mini Streak Calculation
   const uniqueDates = [...new Set(task.activity)].sort();
   let streak = 0;
 
@@ -30,61 +29,72 @@ const TaskItem = ({ task }) => {
     }
   }
 
-  // 🎨 Priority Border
-  const priorityBorder =
+  // Priority indicator dot
+  const priorityColor =
     task.priority === "negative"
-      ? "border-l-4 border-red-500"
+      ? "var(--notion-red)"
       : task.priority === "positive"
-      ? "border-l-4 border-yellow-500"
-      : "border-l-4 border-gray-300";
+      ? "var(--notion-green)"
+      : "var(--notion-blue)";
 
   return (
-    <Card
-      className={`p-5 cursor-pointer transition-all duration-200 hover:shadow-md ${priorityBorder} ${
-        doneToday
-          ? "bg-green-50/40 dark:bg-green-900/20"
-          : ""
-      }`}
+    <div
+      className="notion-row group"
       onClick={() => navigate(`/task/${task.id}`)}
     >
-      <div className="flex items-center justify-between">
-        
-        {/* Left Section */}
-        <div>
-          <h3
-            className={`text-lg font-semibold ${
-              doneToday ? "text-green-600" : ""
+      {/* Drag handle (visual only) */}
+      <div className="opacity-0 group-hover:opacity-40 transition-opacity">
+        <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
+      </div>
+
+      {/* Checkbox */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          dispatch(toggleTask(task.id));
+        }}
+        className={`notion-checkbox ${doneToday ? "checked" : ""}`}
+        aria-label={doneToday ? "Mark as incomplete" : "Mark as complete"}
+      >
+        {doneToday && <Check className="w-3 h-3 text-white" />}
+      </button>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span
+            className={`text-sm leading-snug transition-colors ${
+              doneToday
+                ? "line-through text-muted-foreground"
+                : "text-foreground"
             }`}
           >
             {task.title}
-          </h3>
+          </span>
 
-          {/* 🔥 Mini Streak Badge */}
-          {streak > 0 && (
-            <div className="flex items-center gap-1 mt-1 text-sm text-orange-500">
-              <Flame className="w-4 h-4" />
-              <span>{streak} day streak</span>
-            </div>
-          )}
+          {/* Priority dot */}
+          <span
+            className="w-2 h-2 rounded-full shrink-0"
+            style={{ background: priorityColor }}
+          />
         </div>
 
-        {/* Right Section → Mark Done */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            dispatch(toggleTask(task.id));
-          }}
-          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all
-            ${
-              doneToday
-                ? "bg-green-500 text-white shadow-md"
-                : "bg-muted hover:bg-muted/70"
-            }`}
-        >
-          <CircleCheckBig className="w-5 h-5" />
-        </button>
+        {/* Streak badge */}
+        {streak > 0 && (
+          <div className="flex items-center gap-1 mt-0.5">
+            <Flame className="w-3 h-3" style={{ color: "var(--notion-orange)" }} />
+            <span className="text-[11px]" style={{ color: "var(--notion-orange)" }}>
+              {streak} day streak
+            </span>
+          </div>
+        )}
       </div>
-    </Card>
+
+      {/* Open arrow */}
+      <div className="opacity-0 group-hover:opacity-60 transition-opacity">
+        <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
+      </div>
+    </div>
   );
 };
 

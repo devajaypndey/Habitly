@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import TaskHeatmapPage from "@/pages/TaskHeatmapPage";
+import Register from "@/pages/Register";
 
 const AppRoutes = () => {
   return (
@@ -10,8 +11,8 @@ const AppRoutes = () => {
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* Login for future */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={ <Register /> } />
 
         <Route path="/dashboard" element={<Dashboard />} />
 

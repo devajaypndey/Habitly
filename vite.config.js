@@ -22,8 +22,8 @@ export default defineConfig({
         name: "Habitly",
         short_name: "Habitly",
         description: "Track habit daily and stay consistent",
-        theme_color: "#5A7ACD",
-        background_color: "#ffffff",
+        theme_color: "#FFFFFF",
+        background_color: "#FFFFFF",
         display: "standalone",
         start_url: "/",
         icons: [

@@ -1,16 +1,6 @@
 import { useState } from "react";
 import { useAppDispatch } from "../app/hooks";
 import { login } from "../features/auth/authSlice";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
@@ -49,60 +39,83 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/40 px-4">
-      <Card className="w-full max-w-md shadow-xl border">
-        <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>
-            Sign in to continue to your dashboard
-          </CardDescription>
-        </CardHeader>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-sm notion-animate-in">
 
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
+
+        <div className="text-center mb-8">
+          <div className="inline-block text-5xl mb-3 select-none">🌿</div>
+          <h1 className="notion-title text-3xl mb-1">Welcome back</h1>
+          <p className="notion-caption text-sm">
+            Sign in to continue to Habitly
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
+              Email
+            </label>
+            <input
               name="email"
               type="email"
-              placeholder="Your Email"
+              placeholder="Enter your email..."
               value={formData.email}
               onChange={handleChange}
               required
+              className="notion-inline-input border border-border rounded-md px-3 py-2 w-full text-sm
+                        focus:border-(--notion-blue) focus:shadow-[0_0_0_1px_var(--notion-blue)] transition-all"
             />
+          </div>
 
-            <Input
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
+              Password
+            </label>
+            <input
               name="password"
               type="password"
-              placeholder="Password"
+              placeholder="Enter your password..."
               value={formData.password}
               onChange={handleChange}
               required
+              className="notion-inline-input border border-border rounded-md px-3 py-2 w-full text-sm
+                        focus:border-(--notion-blue) focus:shadow-[0_0_0_1px_var(--notion-blue)] transition-all"
             />
+          </div>
 
-            <div className="text-right text-sm">
-              <Link
-                to="/forgot-password"
-                className="text-primary hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+          <div className="text-right">
             <Link
-              to="/register"
-              className="font-medium text-primary hover:underline"
+              to="/forgot-password"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              Sign up
+              Forgot password?
             </Link>
           </div>
-        </CardContent>
-      </Card>
+
+          <button
+            type="submit"
+            className="w-full py-2.5 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90"
+            style={{ background: "var(--notion-blue)" }}
+          >
+            Log in
+          </button>
+        </form>
+
+
+        <div className="notion-divider my-6" />
+
+        <p className="text-center text-sm text-muted-foreground">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="font-medium text-foreground hover:underline underline-offset-2"
+          >
+            Sign up
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

@@ -1,16 +1,8 @@
 import { useAppSelector } from "@/app/hooks";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { CheckCircle2, CircleDashed, BarChart3 } from "lucide-react";
 
 const TaskStats = () => {
-  const tasks = useAppSelector(
-    (state) => state.tasks.tasks
-  );
+  const tasks = useAppSelector((state) => state.tasks.tasks);
 
   const totalTasks = tasks.length;
 
@@ -28,74 +20,65 @@ const TaskStats = () => {
       : Math.round((completedToday / totalTasks) * 100);
 
   return (
-    <Card className="rounded-xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <BarChart3 className="w-5 h-5 text-muted-foreground" />
-          Statistics
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-
-        {/* HERO COMPLETION */}
-        <div className="text-center">
-          <p className="text-4xl font-bold tracking-tight">
+    <div>
+      {/* Progress Section */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="notion-emoji-icon">📊</span>
+            <span className="notion-heading text-base">Today's Progress</span>
+          </div>
+          <span className="text-2xl font-semibold tracking-tight">
             {completionRate}%
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Today’s Completion
-          </p>
+          </span>
         </div>
 
-        {/* GRID STATS */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {/* Notion-style progress bar */}
+        <div className="notion-progress">
+          <div
+            className="notion-progress-bar"
+            style={{ width: `${completionRate}%` }}
+          />
+        </div>
+      </div>
 
-          <div className="p-4 rounded-lg border bg-muted/40 transition hover:bg-muted/60">
-            <p className="text-2xl font-semibold">
-              {totalTasks}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Total Habits
-            </p>
-          </div>
-
-          <div className="p-4 rounded-lg border bg-muted/40 transition hover:bg-muted/60">
-            <div className="flex items-center gap-2 text-green-500">
-              <CheckCircle2 className="w-4 h-4" />
-              <p className="text-2xl font-semibold">
-                {completedToday}
-              </p>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Completed Today
-            </p>
-          </div>
-
-          <div className="p-4 rounded-lg border bg-muted/40 transition hover:bg-muted/60">
-            <div className="flex items-center gap-2 text-yellow-500">
-              <CircleDashed className="w-4 h-4" />
-              <p className="text-2xl font-semibold">
-                {activeToday}
-              </p>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Remaining
-            </p>
-          </div>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-3 gap-3">
+        {/* Total */}
+        <div className="p-3 rounded-md bg-secondary/60 transition-colors hover:bg-secondary">
+          <p className="text-xl font-semibold mb-0.5">{totalTasks}</p>
+          <p className="notion-caption text-xs">Total Habits</p>
         </div>
 
-        {/* EMPTY STATE ILLUSTRATION */}
-        {totalTasks === 0 && (
-          <div className="flex flex-col items-center justify-center pt-6 text-center space-y-3">
-            <BarChart3 className="w-16 h-16 text-muted-foreground opacity-40" />
-            <p className="text-sm text-muted-foreground">
-              Add your first habit to see statistics.
-            </p>
+        {/* Completed */}
+        <div className="p-3 rounded-md bg-secondary/60 transition-colors hover:bg-secondary">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "var(--notion-green)" }} />
+            <p className="text-xl font-semibold">{completedToday}</p>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <p className="notion-caption text-xs">Done Today</p>
+        </div>
+
+        {/* Remaining */}
+        <div className="p-3 rounded-md bg-secondary/60 transition-colors hover:bg-secondary">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <CircleDashed className="w-3.5 h-3.5" style={{ color: "var(--notion-orange)" }} />
+            <p className="text-xl font-semibold">{activeToday}</p>
+          </div>
+          <p className="notion-caption text-xs">Remaining</p>
+        </div>
+      </div>
+
+      {/* Empty State */}
+      {totalTasks === 0 && (
+        <div className="flex flex-col items-center justify-center pt-8 pb-4 text-center">
+          <BarChart3 className="w-12 h-12 text-muted-foreground opacity-30 mb-3" />
+          <p className="notion-caption">
+            Add your first habit to see statistics.
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
 
