@@ -1,28 +1,39 @@
 import { useState } from "react";
-import { useAppDispatch } from "@/app/hooks";
-import { addTask } from "@/features/tasks/taskSlice";
 import { Plus } from "lucide-react";
+import { useCreateTask } from "@/api/tasks/apiTasks";
+import { toast } from "react-toastify";
 
 const TaskInput = () => {
-  const dispatch = useAppDispatch();
+  const createTaskMutation = useCreateTask();
 
   const [newTask, setNewTask] = useState("");
   const [priority, setPriority] = useState("positive");
   const [isFocused, setIsFocused] = useState(false);
 
-  const handleAddTask = () => {
-    if (!newTask.trim()) return;
+  const handleAddTask = async () => {
+    if (!newTask.trim()){
+      toast.info("Please enter a task")
+      return
+    }
 
-    dispatch(
-      addTask({
-        title: newTask,
-        priority,
-        dueDate: null,
-      })
-    );
-
-    setNewTask("");
-    setPriority("positive");
+    try {
+      await createTaskMutation.mutateAsync(
+        { title: newTask.trim(), priority},
+        {
+          onSuccess: (data) => {
+            toast.success(data.message || 'Task created!');
+            setNewTask("")
+            setPriority("neutral")
+          },
+          onError: (error) => {
+            toast.error(error)
+          }
+        }
+      );
+      
+    } catch (error) {
+      toast.error(error)
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -81,7 +92,7 @@ const TaskInput = () => {
               <button
                 key={opt.value}
                 onClick={() => setPriority(opt.value)}
-                onMouseDown={(e) => e.preventDefault()} // prevent blur
+                onMouseDown={(e) => e.preventDefault()} 
                 className={`notion-tag cursor-pointer transition-all ${
                   priority === opt.value
                     ? opt.className
@@ -96,12 +107,13 @@ const TaskInput = () => {
           {/* Add button */}
           <button
             onClick={handleAddTask}
+            disabled={createTaskMutation.isPending}
             onMouseDown={(e) => e.preventDefault()}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium
-                       bg-(--notion-blue) text-white hover:opacity-90 transition-opacity"
+                      bg-(--notion-blue) text-white hover:opacity-90 transition-opacity"
           >
             <Plus className="w-3 h-3" />
-            Add
+            {createTaskMutation.isPending ? 'Adding' : "Add"}
           </button>
         </div>
       )}

@@ -2,10 +2,14 @@ import { useState } from "react";
 import { useAppDispatch } from "../app/hooks";
 import { login } from "../features/auth/authSlice";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useLogin } from "@/api/auth/apiAuth";
+import Loader from "@/components/loader/Loader";
 
 const Login = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const loginMutation = useLogin();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -19,23 +23,30 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validEmail = "admin@test.com";
-    const validPassword = "123456";
-
-    if (formData.email !== validEmail || formData.password !== validPassword) {
-      toast.error("Invalid credentials");
+    if(!formData.email || !formData.password){
+      toast.error("Email and password required")
       return;
     }
 
-    dispatch(
-      login({
-        id: Date.now(),
-        email: formData.email,
-      }),
-    );
+    try {
+      await loginMutation.mutateAsync(
+        { email: formData.email, password: formData.password},
+        {
+          onSuccess: (data) => {
+            dispatch(login(data.user));
+            toast.success(data.message || "Login successfully");
+            navigate("/dashboard")
+          }
+        }
+      )
+      
+    } catch (error) {
+      toast.error(error)
+    }
+
   };
 
   return (
@@ -96,10 +107,11 @@ const Login = () => {
 
           <button
             type="submit"
+            disabled={loginMutation.isPending}
             className="w-full py-2.5 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90"
             style={{ background: "var(--notion-blue)" }}
           >
-            Log in
+            {loginMutation.isPending ? "Signing in..." : "Log in"}
           </button>
         </form>
 

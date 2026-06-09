@@ -6,20 +6,36 @@ import TaskStats from "@/features/components/TaskStats";
 import TaskInput from "@/features/components/TaskInput";
 import TaskFilters from "@/features/components/TaskFilters";
 import TaskList from "@/features/components/TaskList";
-import { Sun, Moon, ChevronRight, MoreHorizontal } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Sun, Moon, ChevronRight, MoreHorizontal, LogOut, User } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useLogout } from "../api/auth/apiAuth";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const logoutMutation = useLogout();
   const theme = useAppSelector((state) => state.ui.theme);
   const tasks = useAppSelector((state) => state.tasks.tasks);
   const [scrolled, setScrolled] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const today = new Date();
@@ -29,13 +45,31 @@ const Dashboard = () => {
     day: "numeric",
   });
 
+  const handleProfile = () => {
+    setShowMenu(false);
+    navigate("/profile");
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync(undefined, {
+        onSuccess: () => {
+          dispatch(logout());
+          toast.success("Logged out successfully");
+          navigate("/login");
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
-
-
-      <div
-        className={`notion-topbar ${scrolled ? "scrolled" : ""}`}
-      >
+      <div className={`notion-topbar ${scrolled ? "scrolled" : ""}`}>
         <div className="flex items-center gap-1 flex-1 min-w-0">
           <span className="notion-emoji-icon">🌿</span>
           <ChevronRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
@@ -55,9 +89,35 @@ const Dashboard = () => {
             )}
           </button>
 
-          <button className="notion-icon-btn">
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
+          {/* Dropdown Menu */}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="notion-icon-btn"
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+
+            {showMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-md shadow-lg z-50 notion-animate-in">
+                <button
+                  onClick={handleProfile}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-accent transition-colors border-b border-border"
+                >
+                  <User className="w-4 h-4" />
+                  Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  disabled={logoutMutation.isPending}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-accent transition-colors text-red-500 disabled:opacity-50"
+                >
+                  <LogOut className="w-4 h-4" />
+                  {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -83,11 +143,6 @@ const Dashboard = () => {
 
       {/*--- page content -- */}
       <div className="notion-page pb-24">
-
-        {/* Page Icon */}
-        {/* <div className="notion-page-icon select-none">🌿</div> */}
-
-
         <h1 className="notion-title text-[40px] mb-1">Habitly</h1>
 
         {/* Subtitle / Date */}
@@ -96,17 +151,13 @@ const Dashboard = () => {
           Track your daily habits. Build consistency. One day at a time.
         </p>
 
-
         <div className="notion-animate-in mb-8">
           <TaskStats />
         </div>
 
-
         <div className="notion-divider mb-6" />
 
-
         <div className="notion-animate-in" style={{ animationDelay: "80ms" }}>
-
           <div className="flex items-center gap-2 mb-4">
             <span className="notion-emoji-icon">📋</span>
             <h2 className="notion-heading text-lg">Habits</h2>

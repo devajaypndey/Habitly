@@ -1,23 +1,34 @@
-import { useAppSelector } from "@/app/hooks";
 import TaskItem from "./TaskItem";
 import { ClipboardList } from "lucide-react";
+import { useGetAllTasks } from "@/api/tasks/apiTasks";
+import Loader from "@/components/loader/Loader";
 
 const TaskList = () => {
-  const { tasks, filter, searchTerm } = useAppSelector((state) => state.tasks);
+  const { data: tasksData, isLoading, isError } = useGetAllTasks();
 
-  const today = new Date().toISOString().split("T")[0];
+  
+  const tasks = tasksData?.tasks || [];
 
-  const filteredTasks = tasks
-    .filter((task) => {
-      const doneToday = task.activity.includes(today);
+  const filteredTasks = tasks.filter(() => {
+    return true; // Show all tasks
+  });
 
-      if (filter === "active") return !doneToday;
-      if (filter === "completed") return doneToday;
-      return true;
-    })
-    .filter((task) =>
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()),
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <Loader className="w-8 h-8 animate-spin text-(--notion-blue)" />
+        <p className="mt-4 text-sm text-muted-foreground">Loading tasks...</p>
+      </div>
     );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <p className="text-sm text-red-500">Error loading tasks</p>
+      </div>
+    );
+  }
 
   if (tasks.length === 0) {
     return (
