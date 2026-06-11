@@ -27,7 +27,7 @@ const Dashboard = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close menu when clicking outside
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -50,21 +50,17 @@ const Dashboard = () => {
     navigate("/profile");
   };
 
-  const handleLogout = async () => {
-    try {
-      await logoutMutation.mutateAsync(undefined, {
-        onSuccess: () => {
-          dispatch(logout());
-          toast.success("Logged out successfully");
-          navigate("/login");
-        },
-        onError: (error) => {
-          toast.error(error.message);
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: (data) => {
+        dispatch(logout());
+        toast.success(data.message);
+        navigate("/login");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Logout failed");
+      },
+    });
   };
 
   return (
@@ -89,7 +85,7 @@ const Dashboard = () => {
             )}
           </button>
 
-          {/* Dropdown Menu */}
+        
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}
@@ -141,11 +137,11 @@ const Dashboard = () => {
         />
       </div>
 
-      {/*--- page content -- */}
+      
       <div className="notion-page pb-24">
         <h1 className="notion-title text-[40px] mb-1">Habitly</h1>
 
-        {/* Subtitle / Date */}
+        
         <p className="notion-caption text-base mb-1">{dateStr}</p>
         <p className="notion-caption mb-8">
           Track your daily habits. Build consistency. One day at a time.

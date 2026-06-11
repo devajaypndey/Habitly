@@ -3,8 +3,9 @@ import { useAppDispatch } from "../app/hooks";
 import { login } from "../features/auth/authSlice";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
-import { useLogin } from "@/api/auth/apiAuth";
-import Loader from "@/components/loader/Loader";
+import { useLogin } from "../api/auth/apiAuth";
+import { Loader } from "lucide-react";
+
 
 const Login = () => {
   const dispatch = useAppDispatch();
@@ -31,21 +32,19 @@ const Login = () => {
       return;
     }
 
-    try {
-      await loginMutation.mutateAsync(
-        { email: formData.email, password: formData.password},
-        {
-          onSuccess: (data) => {
-            dispatch(login(data.user));
-            toast.success(data.message || "Login successfully");
-            navigate("/dashboard")
-          }
+    loginMutation.mutate(
+      { email: formData.email, password: formData.password},
+      {
+        onSuccess: (data) => {
+          dispatch(login(data.user));
+          toast.success(data.message);
+          navigate("/dashboard")
+        },
+        onError: (error) => {
+          toast.error(error.message || "Login failed")
         }
-      )
-      
-    } catch (error) {
-      toast.error(error)
-    }
+      }
+    )
 
   };
 
@@ -98,7 +97,7 @@ const Login = () => {
 
           <div className="text-right">
             <Link
-              to="/forgot-password"
+              to="/forget-password"
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               Forgot password?
@@ -111,7 +110,14 @@ const Login = () => {
             className="w-full py-2.5 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90"
             style={{ background: "var(--notion-blue)" }}
           >
-            {loginMutation.isPending ? "Signing in..." : "Log in"}
+                {loginMutation.isPending ? (
+                  <>
+                    <Loader className="w-4 h-4 inline animate-spin mr-2" />
+                    logging...
+                  </>
+                ) : (
+                  "Login in"
+                )}
           </button>
         </form>
 

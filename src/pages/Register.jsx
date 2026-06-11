@@ -5,6 +5,7 @@ import { login } from "../features/auth/authSlice";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { useRegister, useVerifyOtp } from "../api/auth/apiAuth";
+import { Loader } from "lucide-react";
 
 function Register() {
   const navigate = useNavigate();
@@ -28,57 +29,53 @@ function Register() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const { name, email, password, confirmPassword, otp } = formData;
 
-    try {
-      if (!isOtpSent) {
-        if (!name || !email || !password || !confirmPassword) {
-          toast.error("All fields required");
-          return;
-        }
-        if (password !== confirmPassword) {
-          toast.error("Passwords do not match");
-          return;
-        }
-
-        await registerMutation.mutateAsync(
-          { username: name, email, password },
-          {
-            onSuccess: (data) => {
-              setIsOtpSent(true);
-              toast.success(data.message || "OTP sent to your email");
-            },
-            onError: (error) => {
-              toast.error(error.message);
-            },
-          }
-        );
+    if (!isOtpSent) {
+      if (!name || !email || !password || !confirmPassword) {
+        toast.error("All fields required");
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match");
         return;
       }
 
-      if (!otp) {
-        toast.error("OTP is required");
-        return;
-      }
-
-      await verifyOtpMutation.mutateAsync(
-        { email, otp },
+      registerMutation.mutate(
+        { username: name, email, password },
         {
           onSuccess: (data) => {
-            dispatch(login(data.user));
-            toast.success(data.message || "Registration complete");
-            navigate("/dashboard");
+            setIsOtpSent(true);
+            toast.success(data.message || "OTP sent to your email");
           },
           onError: (error) => {
-            toast.error(error.message);
+            toast.error(error.message || "Registration failed");
           },
         }
       );
-    } catch (error) {
-      toast.error(error.message || "An error occurred");
+      return;
     }
+
+    if (!otp) {
+      toast.error("OTP is required");
+      return;
+    }
+
+    verifyOtpMutation.mutate(
+      { email, otp },
+      {
+        onSuccess: (data) => {
+          dispatch(login(data.user));
+          toast.success(data.message || "Registration complete");
+          navigate("/dashboard");
+        },
+        onError: (error) => {
+          toast.error(error.message || "Verification failed");
+        },
+      }
+    );
   };
 
   const inputClass = `notion-inline-input border border-border rounded-md px-3 py-2 w-full text-sm
@@ -191,10 +188,15 @@ function Register() {
             style={{ background: "var(--notion-blue)" }}
           >
             {isSubmitting
-              ? "Please wait..."
-              : isOtpSent
+              ? (
+                <>
+                <Loader  className="w-4 h-4 inline animate-spin mr-2" />
+                please wait....
+                </>
+              )
+              : (isOtpSent
                 ? "Verify OTP"
-                : "Send OTP"}
+                : "Send OTP" )}
           </button>
         </form>
 

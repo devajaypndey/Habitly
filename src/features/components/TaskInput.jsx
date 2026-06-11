@@ -16,24 +16,19 @@ const TaskInput = () => {
       return
     }
 
-    try {
-      await createTaskMutation.mutateAsync(
-        { title: newTask.trim(), priority},
-        {
-          onSuccess: (data) => {
-            toast.success(data.message || 'Task created!');
-            setNewTask("")
-            setPriority("neutral")
-          },
-          onError: (error) => {
-            toast.error(error)
-          }
+    createTaskMutation.mutate(
+      { title: newTask.trim(), priority},
+      {
+        onSuccess: (data) => {
+          toast.success(data.message || 'Task created!');
+          setNewTask("")
+          setPriority("neutral")
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to create task")
         }
-      );
-      
-    } catch (error) {
-      toast.error(error)
-    }
+      }
+    );
   };
 
   const handleKeyDown = (e) => {

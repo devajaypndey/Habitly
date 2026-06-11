@@ -31,14 +31,14 @@ function useLogout(){
 
 
 function useForgetPassword(){
-    useMutation({
+    return useMutation({
         mutationFn: ({ email}) => 
             apiClient.post("/auth/forget-password", { email})
     })
 };
 
 function useResetPassword(){
-    useMutation({
+    return useMutation({
         mutationFn: ({ email, otp, newPassword, confirmPassword }) =>
             apiClient.post("/auth/reset-password", {
                 email,

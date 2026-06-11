@@ -1,8 +1,11 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { useState, useEffect } from "react";
 import { editTask, deleteTask } from "@/features/tasks/taskSlice";
+import { useGetAllTasks, useUpdateTask, useDeleteTask } from "../api/tasks/apiTasks";
+import { toast } from "react-toastify";
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,13 +19,21 @@ import {
 } from "lucide-react";
 
 const TaskHeatmapPage = () => {
-  const { id } = useParams();
+  const { taskId } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { data: tasksData, isLoading } = useGetAllTasks();
+  const updateTaskMutation = useUpdateTask();
+  const deleteTaskMutation = useDeleteTask();
 
-  const task = useAppSelector((state) =>
-    state.tasks.tasks.find((t) => t.id === Number(id)),
+  const reduxTask = useAppSelector((state) =>
+    state.tasks.tasks.find((t) => String(t._id || t.id) === String(taskId)),
   );
+  const task =
+    tasksData?.tasks?.find((t) => String(t._id || t.id) === String(taskId)) ||
+    reduxTask;
+
+  const resolvedTaskId = task?._id || task?.id;
 
   const today = new Date();
 
@@ -30,12 +41,28 @@ const TaskHeatmapPage = () => {
     new Date(today.getFullYear(), today.getMonth(), 1),
   );
   const [scrolled, setScrolled] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (task?.title) {
+      setEditText(task.title);
+    }
+  }, [task?.title]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="notion-caption">Loading habit...</p>
+      </div>
+    );
+  }
 
   if (!task) {
     return (
@@ -56,7 +83,8 @@ const TaskHeatmapPage = () => {
     );
   }
 
-  const uniqueDates = [...new Set(task.activity)].sort();
+  const activity = task.activity || [];
+  const uniqueDates = [...new Set(activity)].sort();
 
   let longestStreak = 0;
   let tempStreak = 1;
@@ -82,7 +110,7 @@ const TaskHeatmapPage = () => {
     return `${year}-${month}-${day}`;
   }
 
-  // Current streak
+
   const todayISO = formatLocalDate(new Date());
   let currentStreak = 0;
 
@@ -96,7 +124,7 @@ const TaskHeatmapPage = () => {
     }
   }
 
-  // Month details
+  // month details
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const firstDay = new Date(year, month, 1);
@@ -104,7 +132,7 @@ const TaskHeatmapPage = () => {
   const startingDayOfWeek = firstDay.getDay();
   const totalDays = lastDay.getDate();
 
-  // Calendar cells
+  // calendar cells
   const calendarDays = [];
   for (let i = 0; i < startingDayOfWeek; i++) {
     calendarDays.push(null);
@@ -134,22 +162,45 @@ const TaskHeatmapPage = () => {
   const isFutureDate = (date) => date > todayISO;
   const isToday = (date) => date === todayISO;
 
-  // Editing state
-  const [editing, setEditing] = useState(false);
-  const [editText, setEditText] = useState(task.title);
-
   const handleSave = () => {
     if (!editText.trim()) return;
-    dispatch(editTask({ id: task.id, title: editText }));
-    setEditing(false);
+    updateTaskMutation.mutate(
+      { 
+        taskId: resolvedTaskId, 
+        title: editText,
+        priority: task.priority,
+        activity
+      },
+      {
+        onSuccess: (data) => {
+          dispatch(editTask({ id: resolvedTaskId, title: editText }));
+          toast.success(data.message || "Task updated successfully");
+          setEditing(false);
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to update task");
+        },
+      }
+    );
   };
 
   const handleDelete = () => {
-    dispatch(deleteTask(task.id));
-    navigate("/dashboard");
+    deleteTaskMutation.mutate(
+      { taskId: resolvedTaskId },
+      {
+        onSuccess: (data) => {
+          dispatch(deleteTask(resolvedTaskId));
+          toast.success(data.message || "Task deleted successfully");
+          navigate("/dashboard");
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to delete task");
+        },
+      }
+    );
   };
 
-  // Priority label
+
   const priorityLabel =
     task.priority === "positive"
       ? "Positive"
@@ -166,7 +217,8 @@ const TaskHeatmapPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ══════ TOPBAR ══════ */}
+
+
       <div className={`notion-topbar ${scrolled ? "scrolled" : ""}`}>
         <div className="flex items-center gap-1 flex-1 min-w-0">
           <button
@@ -188,7 +240,7 @@ const TaskHeatmapPage = () => {
         </div>
       </div>
 
-      {/* ══════ COVER ══════ */}
+      {/* cover */}
       <div className="w-full h-28" style={{
         background: task.priority === "positive"
           ? "linear-gradient(135deg, #D4E6D9 0%, #E8F4F8 100%)"
@@ -199,12 +251,13 @@ const TaskHeatmapPage = () => {
         <div className="dark:hidden" />
       </div>
 
-      {/* ══════ PAGE CONTENT ══════ */}
+
       <div className="notion-page pb-24 notion-animate-in">
-        {/* Page Icon */}
+
+
         <div className="notion-page-icon select-none">📅</div>
 
-        {/* Title (editable) */}
+
         {editing ? (
           <div className="flex items-center gap-2 mb-4">
             <input
@@ -213,12 +266,22 @@ const TaskHeatmapPage = () => {
               className="notion-inline-input text-[32px] font-bold flex-1 p-1!"
               style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
               autoFocus
+              disabled={updateTaskMutation.isPending}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
-            <button onClick={handleSave} className="notion-icon-btn" style={{ color: "var(--notion-green)" }}>
+            <button 
+              onClick={handleSave} 
+              disabled={updateTaskMutation.isPending}
+              className="notion-icon-btn disabled:opacity-50 disabled:cursor-not-allowed" 
+              style={{ color: "var(--notion-green)" }}
+            >
               <Check className="w-4 h-4" />
             </button>
-            <button onClick={() => setEditing(false)} className="notion-icon-btn">
+            <button 
+              onClick={() => setEditing(false)} 
+              disabled={updateTaskMutation.isPending}
+              className="notion-icon-btn disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -234,7 +297,7 @@ const TaskHeatmapPage = () => {
           </h1>
         )}
 
-        {/* Properties */}
+
         <div className="space-y-2 mb-8">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-muted-foreground w-24 shrink-0">Type</span>
@@ -252,14 +315,14 @@ const TaskHeatmapPage = () => {
           </div>
           <div className="flex items-center gap-2 text-sm">
             <span className="text-muted-foreground w-24 shrink-0">Completions</span>
-            <span className="text-foreground">{task.activity.length}</span>
+            <span className="text-foreground">{activity.length}</span>
           </div>
         </div>
 
-        {/* ══════ DIVIDER ══════ */}
+        
         <div className="notion-divider mb-6" />
 
-        {/* ══════ CALENDAR HEATMAP ══════ */}
+        
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <button
@@ -281,7 +344,7 @@ const TaskHeatmapPage = () => {
             </button>
           </div>
 
-          {/* Weekday labels */}
+          
           <div className="grid grid-cols-7 gap-1 mb-1">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
               <div
@@ -293,7 +356,7 @@ const TaskHeatmapPage = () => {
             ))}
           </div>
 
-          {/* Calendar grid */}
+          
           <div className="grid grid-cols-7 gap-1">
             {calendarDays.map((date, index) => {
               if (!date) {
@@ -302,9 +365,9 @@ const TaskHeatmapPage = () => {
 
               const future = isFutureDate(date);
               const todayCell = isToday(date);
-              const count = task.activity.filter((d) => d === date).length;
+              const count = activity.filter((d) => d === date).length;
 
-              // Notion-style green intensity
+              
               let bg = "bg-secondary";
               let textColor = "text-muted-foreground";
 
@@ -355,8 +418,8 @@ const TaskHeatmapPage = () => {
           </div>
         </div>
 
-        {/* ══════ STREAKS ══════ */}
-        {task.activity.length > 0 && (
+      
+        {activity.length > 0 && (
           <>
             <div className="notion-divider mb-6" />
             <div className="grid grid-cols-2 gap-4 mb-8">
@@ -379,8 +442,8 @@ const TaskHeatmapPage = () => {
           </>
         )}
 
-        {/* Encouragement for empty */}
-        {task.activity.length === 0 && (
+        
+        {activity.length === 0 && (
           <div className="notion-callout mb-8">
             <span className="text-lg">💡</span>
             <p className="notion-caption">
@@ -389,7 +452,7 @@ const TaskHeatmapPage = () => {
           </div>
         )}
 
-        {/* ══════ DANGER ZONE ══════ */}
+        
         <div className="notion-divider mb-6" />
         <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
@@ -398,8 +461,9 @@ const TaskHeatmapPage = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setEditing(true)}
+              disabled={updateTaskMutation.isPending || deleteTaskMutation.isPending}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium
-                         border border-border hover:bg-accent transition-colors"
+                        border border-border hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Pencil className="w-3.5 h-3.5" />
               Edit
@@ -407,8 +471,9 @@ const TaskHeatmapPage = () => {
 
             <button
               onClick={handleDelete}
+              disabled={updateTaskMutation.isPending || deleteTaskMutation.isPending}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium
-                         transition-colors hover:bg-(--notion-red-bg)"
+                        transition-colors hover:bg-(--notion-red-bg) disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ color: "var(--notion-red)" }}
             >
               <Trash2 className="w-3.5 h-3.5" />

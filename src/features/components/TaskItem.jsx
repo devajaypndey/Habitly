@@ -6,12 +6,14 @@ import { Flame, Check, GripVertical, ArrowUpRight } from "lucide-react";
 const TaskItem = ({ task }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const taskId = task._id || task.id;
 
   const today = new Date().toISOString().split("T")[0];
-  const doneToday = task.activity.includes(today);
+  const activity = task.activity || [];
+  const doneToday = activity.includes(today);
 
   // Mini Streak Calculation
-  const uniqueDates = [...new Set(task.activity)].sort();
+  const uniqueDates = [...new Set(activity)].sort();
   let streak = 0;
 
   if (uniqueDates.includes(today)) {
@@ -40,7 +42,7 @@ const TaskItem = ({ task }) => {
   return (
     <div
       className="notion-row group"
-      onClick={() => navigate(`/task/${task.id}`)}
+      onClick={() => navigate(`/task/${taskId}`)}
     >
       {/* Drag handle (visual only) */}
       <div className="opacity-0 group-hover:opacity-40 transition-opacity">
@@ -51,7 +53,7 @@ const TaskItem = ({ task }) => {
       <button
         onClick={(e) => {
           e.stopPropagation();
-          dispatch(toggleTask(task.id));
+          dispatch(toggleTask(taskId));
         }}
         className={`notion-checkbox ${doneToday ? "checked" : ""}`}
         aria-label={doneToday ? "Mark as incomplete" : "Mark as complete"}

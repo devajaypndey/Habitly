@@ -45,20 +45,10 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Cover */}
-      <div className="notion-cover">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(135deg, #E8F4F8 0%, #D4E6D9 30%, #F0EAD6 70%, #E8E1CF 100%)",
-          }}
-        />
-      </div>
 
       {/* Page Content */}
       <div className="notion-page pb-24">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto pt-7">
           {/* Avatar Section */}
           <div className="flex justify-center mb-8">
             <div

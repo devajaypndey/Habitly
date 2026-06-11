@@ -17,32 +17,28 @@ const ForgotPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otpSent, setOtpSent] = useState(false);
 
-  const handleSendOtp = async () => {
+  const handleSendOtp = () => {
     if (!email) {
       toast.error("Please enter your email");
       return;
     }
 
-    try {
-      await forgetPasswordMutation.mutateAsync(
-        { email },
-        {
-          onSuccess: (data) => {
-            setOtpSent(true);
-            setStep("verify");
-            toast.success(data.message || "OTP sent to your email");
-          },
-          onError: (error) => {
-            toast.error(error.message);
-          },
-        }
-      );
-    } catch (error) {
-      console.error(error);
-    }
+    forgetPasswordMutation.mutate(
+      { email },
+      {
+        onSuccess: (data) => {
+          setOtpSent(true);
+          setStep("verify");
+          toast.success(data.message || "OTP sent to your email");
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to send OTP");
+        },
+      }
+    );
   };
 
-  const handleResetPassword = async () => {
+  const handleResetPassword = () => {
     if (!otp) {
       toast.error("Please enter OTP");
       return;
@@ -60,22 +56,18 @@ const ForgotPassword = () => {
       return;
     }
 
-    try {
-      await resetPasswordMutation.mutateAsync(
-        { email, otp, newPassword, confirmPassword },
-        {
-          onSuccess: (data) => {
-            toast.success(data.message || "Password reset successfully");
-            navigate("/login");
-          },
-          onError: (error) => {
-            toast.error(error.message);
-          },
-        }
-      );
-    } catch (error) {
-      console.error(error);
-    }
+    resetPasswordMutation.mutate(
+      { email, otp, newPassword, confirmPassword },
+      {
+        onSuccess: (data) => {
+          toast.success(data.message || "Password reset successfully");
+          navigate("/login");
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to reset password");
+        },
+      }
+    );
   };
 
   const inputClass = `border border-border rounded-md px-3 py-2 w-full text-sm
@@ -86,16 +78,15 @@ const ForgotPassword = () => {
       <div className="w-full max-w-md notion-animate-in">
         {/* Back Button */}
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/profile")}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back to login
+          Back to profile
         </button>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-block text-5xl mb-3 select-none">🔐</div>
           <h1 className="notion-title text-3xl mb-1">Reset Password</h1>
           <p className="notion-caption text-sm">
             {step === "email"
