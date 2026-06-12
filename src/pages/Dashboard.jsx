@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { toggleTheme } from "@/features/ui/uiSlice";
 import TaskStats from "@/features/components/TaskStats";
 import TaskInput from "@/features/components/TaskInput";
-import TaskFilters from "@/features/components/TaskFilters";
 import TaskList from "@/features/components/TaskList";
 import { Sun, Moon, ChevronRight, MoreHorizontal, LogOut, User } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
