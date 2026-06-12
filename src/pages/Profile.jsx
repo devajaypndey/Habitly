@@ -1,13 +1,19 @@
-/* eslint-disable no-unused-vars */
+
 import { useNavigate } from "react-router-dom";
 import { useGetUserProfile } from "../api/auth/apiAuth";
-import { ChevronLeft, Loader, Lock } from "lucide-react";
-import { useState } from "react";
+import {
+  ChevronLeft,
+  Loader,
+  Lock,
+  Mail,
+  User,
+  BadgeCheck,
+  ShieldAlert,
+} from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { data: userData, isLoading, isError } = useGetUserProfile();
-  const [avatarLetter, setAvatarLetter] = useState("");
 
   if (isLoading) {
     return (
@@ -19,92 +25,128 @@ const Profile = () => {
 
   if (isError) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-red-500">Error loading profile</p>
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="bg-card border border-border rounded-2xl p-6 text-center shadow-sm">
+          <p className="text-red-500 font-medium">
+            Error loading profile
+          </p>
+
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="mt-4 px-4 py-2 rounded-lg text-sm font-medium text-white"
+            style={{ background: "var(--notion-blue)" }}
+          >
+            Go Back
+          </button>
+        </div>
       </div>
     );
   }
 
-  const user = userData?.user || {};
+  const user = userData?.user || userData?.userData || {};
+
   const getAvatarLetter = (name) => {
     return name ? name.charAt(0).toUpperCase() : "U";
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="notion-topbar">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="notion-icon-btn"
+return (
+  <div className="min-h-screen bg-background">
+    <div className="max-w-2xl mx-auto px-5 pt-6 pb-24">
+      
+      <button
+        onClick={() => navigate("/dashboard")}
+        className="mb-8 flex items-center gap-2 text-muted-foreground hover:text-foreground transition"
+      >
+        <ChevronLeft className="w-5 h-5" />
+        <span>Back</span>
+      </button>
+
+      
+      <div className="flex flex-col items-center">
+        <div
+          className="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg"
+          style={{ background: "var(--notion-blue)" }}
+        >
+          {getAvatarLetter(user.username)}
+        </div>
+
+        <h2 className="mt-4 text-2xl font-bold">
+          {user.username || "Unknown User"}
+        </h2>
+
+        <p className="mt-1 text-muted-foreground">
+          {user.email || "No Email"}
+        </p>
+      </div>
+
+      
+      <div className="mt-8 space-y-4">
+        
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md">
+          <div className="mb-2 flex items-center gap-3">
+            <User className="h-5 w-5 text-blue-500" />
+            <span className="font-semibold">Username</span>
+          </div>
+
+          <p className="text-muted-foreground">
+            {user.username || "N/A"}
+          </p>
+        </div>
+
+        
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md">
+          <div className="mb-2 flex items-center gap-3">
+            <Mail className="h-5 w-5 text-blue-500" />
+            <span className="font-semibold">Email</span>
+          </div>
+
+          <p className="break-all text-muted-foreground">
+            {user.email || "N/A"}
+          </p>
+        </div>
+
+        
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md">
+          <div className="mb-3 flex items-center gap-3">
+            {user.isEmailVerified ? (
+              <BadgeCheck className="h-5 w-5 text-green-500" />
+            ) : (
+              <ShieldAlert className="h-5 w-5 text-yellow-500" />
+            )}
+
+            <span className="font-semibold">
+              Email Verification
+            </span>
+          </div>
+
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+              user.isEmailVerified
+                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+            }`}
           >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <span className="text-sm font-medium">Profile</span>
+            {user.isEmailVerified ? "Verified" : "Pending"}
+          </span>
         </div>
       </div>
 
-
-      {/* Page Content */}
-      <div className="notion-page pb-24">
-        <div className="max-w-2xl mx-auto pt-7">
-          {/* Avatar Section */}
-          <div className="flex justify-center mb-8">
-            <div
-              className="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white"
-              style={{ background: "var(--notion-blue)" }}
-            >
-              {getAvatarLetter(user.username)}
-            </div>
-          </div>
-
-          {/* User Info Section */}
-          <div className="notion-animate-in space-y-6">
-            {/* Username */}
-            <div className="border border-border rounded-md p-4">
-              <label className="block text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
-                Username
-              </label>
-              <p className="text-base font-medium">{user.username || "N/A"}</p>
-            </div>
-
-            {/* Email */}
-            <div className="border border-border rounded-md p-4">
-              <label className="block text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
-                Email
-              </label>
-              <p className="text-base font-medium break-all">{user.email || "N/A"}</p>
-            </div>
-
-            {/* Verification Status */}
-            <div className="border border-border rounded-md p-4">
-              <label className="block text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
-                Email Verification
-              </label>
-              <p className="text-sm">
-                {user.isEmailVerified ? (
-                  <span className="text-green-500 font-medium">✓ Verified</span>
-                ) : (
-                  <span className="text-yellow-500 font-medium">Pending</span>
-                )}
-              </p>
-            </div>
-
-            {/* Forget Password Button */}
-            <button
-              onClick={() => navigate("/forget-password")}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90 mt-8"
-              style={{ background: "var(--notion-blue)" }}
-            >
-              <Lock className="w-4 h-4" />
-              Change Password
-            </button>
-          </div>
-        </div>
+      
+      <div className="mt-8">
+        <button
+          onClick={() => navigate("/forget-password")}
+          className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-white font-medium shadow-md transition-all duration-200 hover:scale-[1.01] hover:shadow-lg active:scale-[0.99]"
+          style={{ background: "var(--notion-blue)" }}
+        >
+          <Lock className="h-5 w-5" />
+          <span>Change Password</span>
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default Profile;
+
