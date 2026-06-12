@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
+
 
 const initialState = {
   tasks: [],
@@ -26,7 +26,7 @@ const taskSlice = createSlice({
     // Log activity for today
     toggleTask: (state, action) => {
       const task = state.tasks.find(
-        (t) => t.id === action.payload
+        (t) => String(t._id || t.id) === String(action.payload)
       );
 
       if (!task) return;
