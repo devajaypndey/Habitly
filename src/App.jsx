@@ -1,5 +1,4 @@
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Toaster } from "react-hot-toast";
 import AppRoutes from "./routes/AppRoutes";
 import { useAppSelector } from "./app/hooks";
 import { useEffect } from "react";
@@ -17,14 +16,18 @@ function App() {
 
   return (
     <>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        theme="colored"
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 2000,
+          style: {
+            width: "260px",
+            minHeight: "44px",
+            padding: "8px 12px",
+            borderRadius: "6px",
+            fontSize: "13px",
+          },
+        }}
       />
       <AppRoutes />
       <PWAUpdateToast />
