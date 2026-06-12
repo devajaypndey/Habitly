@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForgetPassword, useResetPassword } from "../api/auth/apiAuth";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { ChevronLeft, Loader } from "lucide-react";
 
 const ForgotPassword = () => {

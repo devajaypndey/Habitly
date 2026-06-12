@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useCreateTask } from "@/api/tasks/apiTasks";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const TaskInput = () => {
   const createTaskMutation = useCreateTask();
@@ -12,7 +12,7 @@ const TaskInput = () => {
 
   const handleAddTask = async () => {
     if (!newTask.trim()){
-      toast.info("Please enter a task")
+      toast("Please enter a task")
       return
     }
 
@@ -77,10 +77,10 @@ const TaskInput = () => {
         />
       </div>
 
-      {/* Bottom toolbar (shows when focused or has text) */}
+      
       {(isFocused || newTask.trim()) && (
         <div className="flex items-center justify-between px-3 py-2 border-t border-border notion-animate-in">
-          {/* Priority tags */}
+          
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground mr-1">Type:</span>
             {priorityOptions.map((opt) => (

@@ -9,7 +9,7 @@ const TaskStats = () => {
   const today = new Date().toISOString().split("T")[0];
 
   const completedToday = tasks.filter((t) =>
-    t.activity.includes(today)
+    t.activity?.includes(today)
   ).length;
 
   const activeToday = totalTasks - completedToday;

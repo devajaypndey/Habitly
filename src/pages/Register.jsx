@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../app/hooks";
 import { login } from "../features/auth/authSlice";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { useRegister, useVerifyOtp } from "../api/auth/apiAuth";
 import { Loader } from "lucide-react";

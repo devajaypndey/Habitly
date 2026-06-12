@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAppDispatch } from "../app/hooks";
 import { login } from "../features/auth/authSlice";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogin } from "../api/auth/apiAuth";
 import { Loader } from "lucide-react";
@@ -41,7 +41,7 @@ const Login = () => {
           navigate("/dashboard")
         },
         onError: (error) => {
-          toast.error(error.message || "Login failed")
+          toast.error(error.message)
         }
       }
     )

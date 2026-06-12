@@ -1,16 +1,44 @@
 import { useAppDispatch } from "@/app/hooks";
+import { useUpdateTask } from "@/api/tasks/apiTasks";
 import { toggleTask } from "@/features/tasks/taskSlice";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { Flame, Check, GripVertical, ArrowUpRight } from "lucide-react";
 
 const TaskItem = ({ task }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const updateTaskMutation = useUpdateTask();
   const taskId = task._id || task.id;
 
   const today = new Date().toISOString().split("T")[0];
   const activity = task.activity || [];
   const doneToday = activity.includes(today);
+
+  const handleToggleTask = (e) => {
+    e.stopPropagation();
+
+    const nextActivity = doneToday
+      ? activity.filter((date) => date !== today)
+      : [...activity, today];
+
+    updateTaskMutation.mutate(
+      {
+        taskId,
+        title: task.title,
+        priority: task.priority,
+        activity: nextActivity,
+      },
+      {
+        onSuccess: () => {
+          dispatch(toggleTask(taskId));
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to update task");
+        },
+      }
+    );
+  };
 
   // Mini Streak Calculation
   const uniqueDates = [...new Set(activity)].sort();
@@ -51,10 +79,8 @@ const TaskItem = ({ task }) => {
 
       {/* Checkbox */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          dispatch(toggleTask(taskId));
-        }}
+        onClick={handleToggleTask}
+        disabled={updateTaskMutation.isPending}
         className={`notion-checkbox ${doneToday ? "checked" : ""}`}
         aria-label={doneToday ? "Mark as incomplete" : "Mark as complete"}
       >

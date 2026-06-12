@@ -1,7 +1,6 @@
 import TaskItem from "./TaskItem";
 import { ClipboardList } from "lucide-react";
-import { useGetAllTasks } from "@/api/tasks/apiTasks";
-import Loader from "@/components/loader/Loader";
+import { useGetAllTasks } from "../../api/tasks/apiTasks";
 
 const TaskList = () => {
   const { data: tasksData, isLoading, isError } = useGetAllTasks();
@@ -10,14 +9,13 @@ const TaskList = () => {
   const tasks = tasksData?.tasks || [];
 
   const filteredTasks = tasks.filter(() => {
-    return true; // Show all tasks
+    return true; 
   });
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <Loader className="w-8 h-8 animate-spin text-(--notion-blue)" />
-        <p className="mt-4 text-sm text-muted-foreground">Loading tasks...</p>
+        <p className="mt-4 text-sm text-muted-foreground">Wait!! we're loading tasks...</p>
       </div>
     );
   }
@@ -25,7 +23,7 @@ const TaskList = () => {
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-sm text-red-500">Error loading tasks</p>
+        <p className="text-sm text-red-500">Oops! Error loading tasks</p>
       </div>
     );
   }
@@ -50,7 +48,7 @@ const TaskList = () => {
 
   return (
     <div className="notion-stagger">
-      {/* Notion-style table header */}
+
       <div className="flex items-center gap-2 px-10 py-1.5 text-xs text-muted-foreground font-medium border-b border-border mb-1">
         <span className="flex-1">Name</span>
         <span className="w-16 text-right">Status</span>

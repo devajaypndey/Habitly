@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 export const loadState = () => {
     try{
@@ -19,7 +19,6 @@ export const saveState = (state) => {
         localStorage.setItem("app_state", serializedState)
 
     } catch (err) {
-        console.error("could not save state", err);
-        toast.error("Failed to save data");
+        toast.error("Failed to save data", err);
     }
 };
