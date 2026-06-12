@@ -9,7 +9,7 @@ import TaskList from "@/features/components/TaskList";
 import { Sun, Moon, ChevronRight, MoreHorizontal, LogOut, User } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useLogout } from "../api/auth/apiAuth";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
@@ -168,9 +168,9 @@ const Dashboard = () => {
           </div>
 
           {/* filters */}
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <TaskFilters />
-          </div>
+          </div> */}
 
           {/* task list */}
           <TaskList />
