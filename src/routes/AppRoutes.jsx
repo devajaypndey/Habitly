@@ -6,24 +6,42 @@ import Register from "@/pages/Register";
 import ProtectedRoute from "./ProtectedRoute";
 import Profile from "@/pages/Profile";
 import ForgotPassword from "@/pages/ForgetPassword";
+import NotFound from "@/pages/NotFound";
+import { useAppSelector } from "@/app/hooks";
+import PublicRoute from "./PublicRoute";
+
+  function HomeRedirect(){
+    const isAuthenticated = useAppSelector(
+      (state) => state.auth.isAuthenticated
+    );
+
+    return(
+      <Navigate to={isAuthenticated ? '/dashboard' : '/login'} 
+      replace
+      />
+    )
+  }
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={ <HomeRedirect/> } />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={ <Register /> } />
+        <Route path="/login" element={<PublicRoute> <Login /> </PublicRoute>} />
 
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/register" element={ <PublicRoute> <Register/> </PublicRoute> } />
+
+        <Route path="/dashboard" element={<ProtectedRoute> <Dashboard /></ProtectedRoute>} />
         
         <Route path="/profile" element={<ProtectedRoute> <Profile/> </ProtectedRoute> } />
 
-        <Route path="/forget-password" element={<ForgotPassword/>} />
+        <Route path="/forget-password" element={<PublicRoute> <ForgotPassword/> </PublicRoute>} />
 
-        <Route path="/task/:taskId" element={<TaskHeatmapPage />} />
+        <Route path="/task/:taskId" element={<ProtectedRoute> <TaskHeatmapPage/> </ProtectedRoute>} />
+
+        <Route path="*" element={<NotFound/>} />
 
       </Routes>
     </BrowserRouter>
