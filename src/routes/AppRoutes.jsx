@@ -37,7 +37,7 @@ const AppRoutes = () => {
         
         <Route path="/profile" element={<ProtectedRoute> <Profile/> </ProtectedRoute> } />
 
-        <Route path="/forget-password" element={<PublicRoute> <ForgotPassword/> </PublicRoute>} />
+        <Route path="/forget-password" element={<ForgotPassword/>}/>
 
         <Route path="/task/:taskId" element={<ProtectedRoute> <TaskHeatmapPage/> </ProtectedRoute>} />
 
